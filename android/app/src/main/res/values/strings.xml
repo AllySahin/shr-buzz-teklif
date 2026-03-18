@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SHR Buzz Teklif</string>
+    <string name="title_activity_main">SHR Buzz Teklif</string>
+    <string name="package_name">com.shrbuzz.teklif</string>
+    <string name="custom_url_scheme">com.shrbuzz.teklif</string>
+</resources>
