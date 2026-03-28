@@ -1,27 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generatePdf, type Product } from "./generate-pdf";
 
+const STORAGE_KEY = "shr-buzz-saved-prices";
+
+function loadSavedPrices(products: Product[]): Product[] {
+  if (typeof window === "undefined") return products;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return products;
+    const saved: Record<string, string> = JSON.parse(raw);
+    return products.map((p) => {
+      const key = `${p.kategori}|${p.urunAdi}|${p.ebat}`;
+      return saved[key] ? { ...p, fiyat: saved[key] } : p;
+    });
+  } catch {
+    return products;
+  }
+}
+
+function savePricesToStorage(products: Product[]) {
+  const map: Record<string, string> = {};
+  for (const p of products) {
+    const key = `${p.kategori}|${p.urunAdi}|${p.ebat}`;
+    map[key] = p.fiyat;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+}
+
 const defaultProducts: Product[] = [
-  { siraNo: 1, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Nar Suyu", ebat: "980 ml", fiyat: "200,00" },
-  { siraNo: 2, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Limon Suyu", ebat: "980 ml", fiyat: "200,00" },
-  { siraNo: 3, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Limon Suyu", ebat: "4950 ml", fiyat: "200,00" },
-  { siraNo: 4, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "980 ml", fiyat: "200,00" },
-  { siraNo: 5, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "4950 ml", fiyat: "200,00" },
-  { siraNo: 6, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Limonata Özü", ebat: "980 ml", fiyat: "200,00" },
-  { siraNo: 7, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Greyfurt Suyu", ebat: "980 ml", fiyat: "200,00" },
-  { siraNo: 8, kategori: "Şoklanmış ve Dondurulmuş Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "4950 ml", fiyat: "200,00" },
-  { siraNo: 9, kategori: "Kristal Buz", urunAdi: "Avalanche İce", ebat: "20 Adet", fiyat: "200,00" },
-  { siraNo: 10, kategori: "Küp Buz", urunAdi: "Premium Buz", ebat: "1 KG", fiyat: "200,00" },
-  { siraNo: 11, kategori: "Küp Buz", urunAdi: "Premium Buz", ebat: "5 KG", fiyat: "200,00" },
-  { siraNo: 12, kategori: "Küp Buz", urunAdi: "Premium Buz", ebat: "10 KG", fiyat: "200,00" },
+  { siraNo: 1, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Nar Suyu", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 2, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 3, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "4950 ml", fiyat: "0" },
+  { siraNo: 4, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 5, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "4950 ml", fiyat: "0" },
+  { siraNo: 6, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limonata Özü", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 7, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Greyfurt Suyu", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 8, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "4950 ml", fiyat: "0" },
+  { siraNo: 9, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "980 ml", fiyat: "0" },
+  { siraNo: 10, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "1 KG", fiyat: "0" },
+  { siraNo: 11, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "5 KG", fiyat: "0" },
+  { siraNo: 12, kategori: "Premium Buz", urunAdi: "Clear Ice (Kare)", ebat: "24 Adet", fiyat: "0" },
+  { siraNo: 13, kategori: "Premium Buz", urunAdi: "Clear Ice (Küre)", ebat: "24 Adet", fiyat: "0" },
+  { siraNo: 14, kategori: "Premium Buz", urunAdi: "Clear Ice (Colins)", ebat: "22 Adet", fiyat: "0" },
 ];
 
 export default function Home() {
   const [firmaAdi, setFirmaAdi] = useState("CM Beach");
   const [teklifNo, setTeklifNo] = useState("SHR-26001");
   const [products, setProducts] = useState<Product[]>(defaultProducts);
+
+  // Sayfa açılışında kaydedilmiş fiyatları yükle
+  useEffect(() => {
+    setProducts(loadSavedPrices(defaultProducts));
+  }, []);
 
   const addProduct = () => {
     setProducts((prev) => [
@@ -49,6 +82,7 @@ export default function Home() {
   };
 
   const handleGeneratePdf = async () => {
+    savePricesToStorage(products);
     await generatePdf({ firmaAdi, teklifNo, products });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);

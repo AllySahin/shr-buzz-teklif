@@ -21,8 +21,8 @@ function escapeHtml(text: string): string {
 export async function generatePdf({ firmaAdi, teklifNo, products }: PdfOptions) {
   const html2pdf = (await import("html2pdf.js")).default;
 
-  // Load logo.png as base64
-  const logoResponse = await fetch("/logo.png");
+  // Load logo.png as base64 - use relative path for static export
+  const logoResponse = await fetch("./logo.png");
   const logoBlob = await logoResponse.blob();
   const logoBase64: string = await new Promise((resolve) => {
     const reader = new FileReader();
@@ -36,7 +36,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products }: PdfOptions) 
     year: "numeric",
   });
   const gecerlilikDate = new Date(today);
-  gecerlilikDate.setDate(gecerlilikDate.getDate() + 5);
+  gecerlilikDate.setDate(gecerlilikDate.getDate() + 30);
   const gecerlilikTarihi = gecerlilikDate.toLocaleDateString("tr-TR", {
     day: "2-digit",
     month: "2-digit",
