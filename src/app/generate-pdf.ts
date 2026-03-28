@@ -71,7 +71,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products }: PdfOptions) 
       <div style="font-size:8.5px;color:#555;line-height:1.7;">
         <div>Adres: Esenköy Mah. Bademli Mevkii No:221 Fethiye/Muğla</div>
         <div>İletişim: +90 533 084 09 48</div>
-        <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: 11111111111</div>
+        <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: 32047036162</div>
       </div>
     </div>
 
