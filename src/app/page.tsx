@@ -3,30 +3,27 @@
 import { useState, useEffect } from "react";
 import { generatePdf, type Product } from "./generate-pdf";
 
-const STORAGE_KEY = "shr-buzz-saved-prices";
+const STORAGE_KEY = "shr-buzz-form-data";
 
-function loadSavedPrices(products: Product[]): Product[] {
-  if (typeof window === "undefined") return products;
+interface SavedFormData {
+  firmaAdi: string;
+  teklifNo: string;
+  products: Product[];
+}
+
+function loadSavedFormData(): SavedFormData | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return products;
-    const saved: Record<string, string> = JSON.parse(raw);
-    return products.map((p) => {
-      const key = `${p.kategori}|${p.urunAdi}|${p.ebat}`;
-      return saved[key] ? { ...p, fiyat: saved[key] } : p;
-    });
+    if (!raw) return null;
+    return JSON.parse(raw) as SavedFormData;
   } catch {
-    return products;
+    return null;
   }
 }
 
-function savePricesToStorage(products: Product[]) {
-  const map: Record<string, string> = {};
-  for (const p of products) {
-    const key = `${p.kategori}|${p.urunAdi}|${p.ebat}`;
-    map[key] = p.fiyat;
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+function saveFormData(data: SavedFormData) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 const defaultProducts: Product[] = [
@@ -51,9 +48,14 @@ export default function Home() {
   const [teklifNo, setTeklifNo] = useState("SHR-26001");
   const [products, setProducts] = useState<Product[]>(defaultProducts);
 
-  // Sayfa açılışında kaydedilmiş fiyatları yükle
+  // Sayfa açılışında kaydedilmiş verileri yükle
   useEffect(() => {
-    setProducts(loadSavedPrices(defaultProducts));
+    const saved = loadSavedFormData();
+    if (saved) {
+      setFirmaAdi(saved.firmaAdi);
+      setTeklifNo(saved.teklifNo);
+      setProducts(saved.products);
+    }
   }, []);
 
   const addProduct = () => {
@@ -82,7 +84,7 @@ export default function Home() {
   };
 
   const handleGeneratePdf = async () => {
-    savePricesToStorage(products);
+    saveFormData({ firmaAdi, teklifNo, products });
     await generatePdf({ firmaAdi, teklifNo, products });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);
@@ -90,7 +92,10 @@ export default function Home() {
       const prefix = match[1];
       const num = parseInt(match[2], 10) + 1;
       const padded = num.toString().padStart(match[2].length, "0");
-      setTeklifNo(`${prefix}${padded}`);
+      const newTeklifNo = `${prefix}${padded}`;
+      setTeklifNo(newTeklifNo);
+      // Yeni teklif numarasını da kaydet
+      saveFormData({ firmaAdi, teklifNo: newTeklifNo, products });
     }
   };
 
