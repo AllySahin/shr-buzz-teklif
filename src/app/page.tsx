@@ -47,6 +47,7 @@ export default function Home() {
   const [firmaAdi, setFirmaAdi] = useState("CM Beach");
   const [teklifNo, setTeklifNo] = useState("SHR-26001");
   const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [loaded, setLoaded] = useState(false);
 
   // Sayfa açılışında kaydedilmiş verileri yükle
   useEffect(() => {
@@ -56,7 +57,14 @@ export default function Home() {
       setTeklifNo(saved.teklifNo);
       setProducts(saved.products);
     }
+    setLoaded(true);
   }, []);
+
+  // Her değişiklikte otomatik kaydet
+  useEffect(() => {
+    if (!loaded) return;
+    saveFormData({ firmaAdi, teklifNo, products });
+  }, [firmaAdi, teklifNo, products, loaded]);
 
   const addProduct = () => {
     setProducts((prev) => [
@@ -84,7 +92,6 @@ export default function Home() {
   };
 
   const handleGeneratePdf = async () => {
-    saveFormData({ firmaAdi, teklifNo, products });
     await generatePdf({ firmaAdi, teklifNo, products });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);
@@ -92,10 +99,7 @@ export default function Home() {
       const prefix = match[1];
       const num = parseInt(match[2], 10) + 1;
       const padded = num.toString().padStart(match[2].length, "0");
-      const newTeklifNo = `${prefix}${padded}`;
-      setTeklifNo(newTeklifNo);
-      // Yeni teklif numarasını da kaydet
-      saveFormData({ firmaAdi, teklifNo: newTeklifNo, products });
+      setTeklifNo(`${prefix}${padded}`);
     }
   };
 
