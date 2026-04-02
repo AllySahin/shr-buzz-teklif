@@ -4,6 +4,7 @@ export interface Product {
   urunAdi: string;
   ebat: string;
   fiyat: string;
+  alisFiyati: string;
 }
 
 interface PdfOptions {

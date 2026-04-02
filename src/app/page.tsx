@@ -26,21 +26,33 @@ function saveFormData(data: SavedFormData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+function parsePrice(val: string): number {
+  return parseFloat(val.replace(",", ".")) || 0;
+}
+
+function calcProfitPercent(satis: string, alis: string): string {
+  const s = parsePrice(satis);
+  const a = parsePrice(alis);
+  if (a <= 0 || s <= 0) return "-";
+  const pct = ((s - a) / a) * 100;
+  return `%${pct.toFixed(1)}`;
+}
+
 const defaultProducts: Product[] = [
-  { siraNo: 1, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Nar Suyu", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 2, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 3, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "4950 ml", fiyat: "0" },
-  { siraNo: 4, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 5, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "4950 ml", fiyat: "0" },
-  { siraNo: 6, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limonata Özü", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 7, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Greyfurt Suyu", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 8, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "4950 ml", fiyat: "0" },
-  { siraNo: 9, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "980 ml", fiyat: "0" },
-  { siraNo: 10, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "1 KG", fiyat: "0" },
-  { siraNo: 11, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "5 KG", fiyat: "0" },
-  { siraNo: 12, kategori: "Premium Buz", urunAdi: "Clear Ice (Kare)", ebat: "24 Adet", fiyat: "0" },
-  { siraNo: 13, kategori: "Premium Buz", urunAdi: "Clear Ice (Küre)", ebat: "24 Adet", fiyat: "0" },
-  { siraNo: 14, kategori: "Premium Buz", urunAdi: "Clear Ice (Colins)", ebat: "22 Adet", fiyat: "0" },
+  { siraNo: 1, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Nar Suyu", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 2, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 3, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limon Suyu", ebat: "4950 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 4, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 5, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Portakal Suyu", ebat: "4950 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 6, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Limonata Özü", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 7, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Greyfurt Suyu", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 8, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "4950 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 9, kategori: "%100 Doğal Sıkım Meyve Suyu", urunAdi: "Ananas Suyu", ebat: "980 ml", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 10, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "1 KG", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 11, kategori: "SHR Buz", urunAdi: "Kristal Buz", ebat: "5 KG", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 12, kategori: "Premium Buz", urunAdi: "Clear Ice (Kare)", ebat: "24 Adet", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 13, kategori: "Premium Buz", urunAdi: "Clear Ice (Küre)", ebat: "24 Adet", fiyat: "0", alisFiyati: "0" },
+  { siraNo: 14, kategori: "Premium Buz", urunAdi: "Clear Ice (Colins)", ebat: "22 Adet", fiyat: "0", alisFiyati: "0" },
 ];
 
 export default function Home() {
@@ -75,6 +87,7 @@ export default function Home() {
         urunAdi: "",
         ebat: "",
         fiyat: "200,00",
+        alisFiyati: "0",
       },
     ]);
   };
@@ -171,7 +184,9 @@ export default function Home() {
                   <th className="px-3 py-3 text-left">Ürün Kategorisi</th>
                   <th className="px-3 py-3 text-left">Ürün Adı</th>
                   <th className="px-3 py-3 text-center w-28">Ebat</th>
-                  <th className="px-3 py-3 text-right w-28">Fiyat (₺)</th>
+                  <th className="px-3 py-3 text-right w-28">Alış (₺)</th>
+                  <th className="px-3 py-3 text-right w-28">Satış (₺)</th>
+                  <th className="px-3 py-3 text-center w-20">Kar %</th>
                   <th className="px-3 py-3 text-center w-16"></th>
                 </tr>
               </thead>
@@ -208,10 +223,29 @@ export default function Home() {
                     <td className="px-3 py-2">
                       <input
                         type="text"
+                        value={product.alisFiyati}
+                        onChange={(e) => updateProduct(index, "alisFiyati", e.target.value)}
+                        className="w-full px-2 py-1.5 border border-orange-200 rounded text-right text-slate-700 text-sm focus:ring-1 focus:ring-orange-400 focus:border-orange-400 outline-none bg-orange-50/50"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input
+                        type="text"
                         value={product.fiyat}
                         onChange={(e) => updateProduct(index, "fiyat", e.target.value)}
                         className="w-full px-2 py-1.5 border border-slate-200 rounded text-right text-slate-700 text-sm focus:ring-1 focus:ring-blue-400 focus:border-blue-400 outline-none"
                       />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <span className={`text-xs font-semibold ${
+                        parsePrice(product.fiyat) > parsePrice(product.alisFiyati) && parsePrice(product.alisFiyati) > 0
+                          ? "text-green-600"
+                          : parsePrice(product.fiyat) < parsePrice(product.alisFiyati) && parsePrice(product.alisFiyati) > 0
+                            ? "text-red-600"
+                            : "text-slate-400"
+                      }`}>
+                        {calcProfitPercent(product.fiyat, product.alisFiyati)}
+                      </span>
                     </td>
                     <td className="px-3 py-2 text-center">
                       <button
@@ -274,14 +308,37 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs text-slate-500 font-medium">Fiyat (₺)</label>
-                  <input
-                    type="text"
-                    value={product.fiyat}
-                    onChange={(e) => updateProduct(index, "fiyat", e.target.value)}
-                    className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-lg text-slate-700 text-sm focus:ring-1 focus:ring-blue-400 outline-none"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-orange-500 font-medium">Alış Fiyatı (₺)</label>
+                    <input
+                      type="text"
+                      value={product.alisFiyati}
+                      onChange={(e) => updateProduct(index, "alisFiyati", e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-orange-200 rounded-lg text-slate-700 text-sm focus:ring-1 focus:ring-orange-400 outline-none bg-orange-50/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 font-medium">Satış Fiyatı (₺)</label>
+                    <input
+                      type="text"
+                      value={product.fiyat}
+                      onChange={(e) => updateProduct(index, "fiyat", e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-lg text-slate-700 text-sm focus:ring-1 focus:ring-blue-400 outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500 font-medium">Kar:</span>
+                  <span className={`text-sm font-bold ${
+                    parsePrice(product.fiyat) > parsePrice(product.alisFiyati) && parsePrice(product.alisFiyati) > 0
+                      ? "text-green-600"
+                      : parsePrice(product.fiyat) < parsePrice(product.alisFiyati) && parsePrice(product.alisFiyati) > 0
+                        ? "text-red-600"
+                        : "text-slate-400"
+                  }`}>
+                    {calcProfitPercent(product.fiyat, product.alisFiyati)}
+                  </span>
                 </div>
               </div>
             ))}
