@@ -11,6 +11,7 @@ interface PdfOptions {
   firmaAdi: string;
   teklifNo: string;
   products: Product[];
+  bilgilendirmeSatirlari: string[];
 }
 
 function escapeHtml(text: string): string {
@@ -19,7 +20,7 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
-export async function generatePdf({ firmaAdi, teklifNo, products }: PdfOptions) {
+export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari }: PdfOptions) {
   const html2pdf = (await import("html2pdf.js")).default;
 
   // Load logo.png as base64 - use relative path for static export
@@ -113,8 +114,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products }: PdfOptions) 
 
   <!-- Notes -->
   <div style="font-size:8px;color:#777;font-style:italic;line-height:1.8;margin-bottom:40px;">
-    *Yukarıdaki fiyatlarımız Türk Lirası (TL) cinsinden olup KDV (%1) dahil değildir.<br/>
-    *Fiyatlar adres teslim fiyatlarıdır.
+    ${bilgilendirmeSatirlari.map(s => `*${escapeHtml(s)}`).join('<br/>')}
   </div>
 
   <!-- Signature -->
