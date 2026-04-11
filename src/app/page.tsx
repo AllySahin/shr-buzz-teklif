@@ -78,7 +78,14 @@ export default function Home() {
       setFirmaAdi(saved.firmaAdi);
       setTeklifNo(saved.teklifNo);
       setProducts(saved.products);
-      if (saved.archivedProducts) setArchivedProducts(saved.archivedProducts);
+      const archived = saved.archivedProducts ?? [];
+      // Varsayılan ürünlerden aktif veya arşivde olmayanları arşive ekle
+      const activeKeys = new Set(saved.products.map((p) => `${p.urunAdi}|${p.ebat}`));
+      const archivedKeys = new Set(archived.map((p) => `${p.urunAdi}|${p.ebat}`));
+      const missing = defaultProducts.filter(
+        (dp) => !activeKeys.has(`${dp.urunAdi}|${dp.ebat}`) && !archivedKeys.has(`${dp.urunAdi}|${dp.ebat}`)
+      );
+      setArchivedProducts([...archived, ...missing]);
       if (saved.bilgilendirmeSatirlari) setBilgilendirmeSatirlari(saved.bilgilendirmeSatirlari);
     }
     setLoaded(true);
