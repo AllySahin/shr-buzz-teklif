@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generatePdf, type Product } from "./generate-pdf";
+import { DEFAULT_TAX_ID } from "@/config/users";
 
 const STORAGE_KEY = "shr-buzz-form-data";
 
@@ -149,7 +150,7 @@ export default function Home() {
   };
 
   const handleGeneratePdf = async () => {
-    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: "+90 533 084 09 48" });
+    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: "+90 533 084 09 48", taxId: DEFAULT_TAX_ID });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);
     if (match) {

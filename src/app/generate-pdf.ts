@@ -13,6 +13,7 @@ interface PdfOptions {
   products: Product[];
   bilgilendirmeSatirlari: string[];
   contact?: string;
+  taxId?: string;
 }
 
 function escapeHtml(text: string): string {
@@ -21,7 +22,7 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
-export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact = "+90 533 084 09 48" }: PdfOptions) {
+export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact = "+90 533 084 09 48", taxId = "32047036162" }: PdfOptions) {
   const html2pdf = (await import("html2pdf.js")).default;
 
   // Load logo.png as base64 - use relative path for static export
@@ -74,7 +75,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
       <div style="font-size:8.5px;color:#555;line-height:1.7;">
         <div>Adres: Esenköy Mah. Bademli Mevkii No:221 Fethiye/Muğla</div>
         <div>İletişim: ${contact}</div>
-        <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: 32047036162</div>
+        <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: ${taxId}</div>
       </div>
     </div>
 
