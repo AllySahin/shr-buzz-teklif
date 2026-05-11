@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { generatePdf, type Product } from "./generate-pdf";
+import { generatePdf, type Product } from "../generate-pdf";
+import { getUserContact } from "@/config/users";
+import { useParams } from "next/navigation";
 
 const STORAGE_KEY = "shr-buzz-form-data";
 
@@ -63,7 +65,11 @@ const defaultBilgilendirmeSatirlari: string[] = [
   "Fiyatlar adres teslim fiyatlarıdır.",
 ];
 
-export default function Home() {
+export default function UserPage() {
+  const params = useParams();
+  const username = params.username as string;
+  const userContact = getUserContact(username);
+
   const [firmaAdi, setFirmaAdi] = useState("CM Beach");
   const [teklifNo, setTeklifNo] = useState("SHR-26001");
   const [products, setProducts] = useState<Product[]>(defaultProducts);
@@ -149,7 +155,7 @@ export default function Home() {
   };
 
   const handleGeneratePdf = async () => {
-    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: "+90 533 084 09 48" });
+    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: userContact });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);
     if (match) {
