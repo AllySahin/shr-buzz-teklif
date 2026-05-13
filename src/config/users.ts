@@ -1,12 +1,16 @@
 export interface UserConfig {
   contact: string;
   taxId: string;
+  firmaYetkilisi?: string;
+  logoPath?: string;
 }
 
 export const USER_CONFIGS: Record<string, UserConfig> = {
   ahmet: {
     contact: "+90 552 617 07 06",
     taxId: "9371036402",
+    firmaYetkilisi: "Ahmet Yapıcı",
+    logoPath: "out/aılogo.jpeg",
   },
 };
 
@@ -25,4 +29,18 @@ export function getTaxId(username?: string): string {
     return USER_CONFIGS[username].taxId;
   }
   return DEFAULT_TAX_ID;
+}
+
+export function getFirmaYetkilisi(username?: string): string {
+  if (username && username in USER_CONFIGS) {
+    return USER_CONFIGS[username].firmaYetkilisi || "Serkan Uyar";
+  }
+  return "Serkan Uyar";
+}
+
+export function getLogoPath(username?: string): string {
+  if (username && username in USER_CONFIGS) {
+    return USER_CONFIGS[username].logoPath || "./logo.png";
+  }
+  return "./logo.png";
 }

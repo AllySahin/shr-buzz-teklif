@@ -14,6 +14,8 @@ interface PdfOptions {
   bilgilendirmeSatirlari: string[];
   contact?: string;
   taxId?: string;
+  firmaYetkilisi?: string;
+  logoPath?: string;
 }
 
 function escapeHtml(text: string): string {
@@ -22,11 +24,11 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
-export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact = "+90 533 084 09 48", taxId = "32047036162" }: PdfOptions) {
+export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact = "+90 533 084 09 48", taxId = "32047036162", firmaYetkilisi = "Serkan Uyar", logoPath = "./logo.png" }: PdfOptions) {
   const html2pdf = (await import("html2pdf.js")).default;
 
-  // Load logo.png as base64 - use relative path for static export
-  const logoResponse = await fetch("./logo.png");
+  // Load logo as base64 - use relative path for static export
+  const logoResponse = await fetch(logoPath);
   const logoBlob = await logoResponse.blob();
   const logoBase64: string = await new Promise((resolve) => {
     const reader = new FileReader();
@@ -122,7 +124,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
   <!-- Signature -->
   <div style="text-align:right;margin-top:40px;">
     <div style="font-size:12px;font-weight:bold;color:#003366;">FİRMA YETKİLİSİ</div>
-    <div style="font-size:10px;color:#444;margin-top:3px;">Serkan Uyar</div>
+    <div style="font-size:10px;color:#444;margin-top:3px;">${escapeHtml(firmaYetkilisi)}</div>
   </div>
 </div>`;
 

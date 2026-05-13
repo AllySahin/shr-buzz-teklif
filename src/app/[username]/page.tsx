@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generatePdf, type Product } from "../generate-pdf";
-import { getUserContact, getTaxId } from "@/config/users";
+import { getUserContact, getTaxId, getFirmaYetkilisi, getLogoPath } from "@/config/users";
 import { useParams } from "next/navigation";
 
 const STORAGE_KEY = "shr-buzz-form-data";
@@ -155,7 +155,7 @@ export default function UserPage() {
   };
 
   const handleGeneratePdf = async () => {
-    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: userContact, taxId: getTaxId(username) });
+    await generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact: userContact, taxId: getTaxId(username), firmaYetkilisi: getFirmaYetkilisi(username), logoPath: getLogoPath(username) });
     // Teklif numarasını 1 artır
     const match = teklifNo.match(/^(.*?)(\d+)$/);
     if (match) {
