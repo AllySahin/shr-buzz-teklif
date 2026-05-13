@@ -28,13 +28,20 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
   const html2pdf = (await import("html2pdf.js")).default;
 
   // Load logo as base64 - use relative path for static export
-  const logoResponse = await fetch(logoPath);
-  const logoBlob = await logoResponse.blob();
-  const logoBase64: string = await new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.readAsDataURL(logoBlob);
-  });
+  let logoBase64 = "";
+  try {
+    const logoResponse = await fetch(logoPath);
+    if (logoResponse.ok) {
+      const logoBlob = await logoResponse.blob();
+      logoBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(logoBlob);
+      });
+    }
+  } catch (error) {
+    console.warn(`Logo yüklenemedi: ${logoPath}`, error);
+  }
   const today = new Date();
   const teklifTarihi = today.toLocaleDateString("tr-TR", {
     day: "2-digit",
@@ -62,6 +69,8 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
     )
     .join("");
 
+  const logoImageSrc = logoBase64 || "./logo.png"; // Fallback to default logo if custom fails
+  
   const html = `
 <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#222;width:700px;padding:40px 40px 30px 40px;box-sizing:border-box;">
   
@@ -69,7 +78,7 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
   <div style="display:flex;align-items:flex-start;margin-bottom:4px;">
     <!-- Left: Logo -->
     <div style="flex-shrink:0;width:100px;margin-right:12px;">
-      <img src="${logoBase64}" style="width:90px;height:auto;" />
+      <img src="${logoImageSrc}" style="width:90px;height:auto;" />
     </div>
 
     <!-- Center: Address (left-aligned) -->

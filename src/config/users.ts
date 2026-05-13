@@ -10,7 +10,7 @@ export const USER_CONFIGS: Record<string, UserConfig> = {
     contact: "+90 552 617 07 06",
     taxId: "9371036402",
     firmaYetkilisi: "Ahmet Yapıcı",
-    logoPath: "out/aılogo.jpeg",
+    logoPath: "/ailogo.jpeg",
   },
 };
 
