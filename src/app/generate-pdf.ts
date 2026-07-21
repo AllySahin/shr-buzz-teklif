@@ -24,24 +24,32 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
+async function loadImageAsBase64(paths: string[]): Promise<string> {
+  for (const imagePath of paths) {
+    try {
+      const response = await fetch(imagePath);
+      if (!response.ok) continue;
+
+      const imageBlob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error(`Görüntü okunamadı: ${imagePath}`));
+        reader.readAsDataURL(imageBlob);
+      });
+    } catch (error) {
+      console.warn(`Logo yüklenemedi: ${imagePath}`, error);
+    }
+  }
+
+  return "";
+}
+
 export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeSatirlari, contact = "+90 533 084 09 48", taxId = "32047036162", firmaYetkilisi = "Serkan Uyar", logoPath = "./logo.png" }: PdfOptions) {
   const html2pdf = (await import("html2pdf.js")).default;
 
-  // Load logo as base64 - use relative path for static export
-  let logoBase64 = "";
-  try {
-    const logoResponse = await fetch(logoPath);
-    if (logoResponse.ok) {
-      const logoBlob = await logoResponse.blob();
-      logoBase64 = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(logoBlob);
-      });
-    }
-  } catch (error) {
-    console.warn(`Logo yüklenemedi: ${logoPath}`, error);
-  }
+  const leftLogoBase64 = await loadImageAsBase64([logoPath, "./logo.png"]);
+  const rightLogoBase64 = await loadImageAsBase64(["./judologo.png", "./jupalogo.png", "./logo.png"]);
   const today = new Date();
   const teklifTarihi = today.toLocaleDateString("tr-TR", {
     day: "2-digit",
@@ -69,34 +77,38 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
     )
     .join("");
 
-  const logoImageSrc = logoBase64 || "./logo.png"; // Fallback to default logo if custom fails
-  
+  const leftLogoImageSrc = leftLogoBase64 || "./logo.png";
+  const rightLogoImageSrc = rightLogoBase64 || "./judologo.png";
+
   const html = `
 <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#222;width:700px;padding:40px 40px 30px 40px;box-sizing:border-box;">
   
   <!-- Header -->
-  <div style="display:flex;align-items:flex-start;margin-bottom:4px;">
+  <div style="display:flex;align-items:center;margin-bottom:4px;gap:10px;">
     <!-- Left: Logo -->
-    <div style="flex-shrink:0;width:100px;margin-right:12px;">
-      <img src="${logoImageSrc}" style="width:90px;height:auto;" />
+    <div style="flex-shrink:0;width:95px;display:flex;justify-content:flex-start;align-items:center;">
+      <img src="${leftLogoImageSrc}" style="width:90px;height:auto;max-height:70px;object-fit:contain;" />
     </div>
 
-    <!-- Center: Address (left-aligned) -->
-    <div style="flex:1;text-align:left;padding-top:2px;padding-left:10px;">
-      <div style="font-size:8.5px;color:#555;line-height:1.7;">
+    <!-- Center: Address and quote info -->
+    <div style="flex:1;min-width:0;text-align:center;padding:0 8px;">
+      <div style="font-size:8.5px;color:#555;line-height:1.65;display:inline-block;text-align:left;">
         <div>Adres: Esenköy Mah. Bademli Mevkii No:221 Fethiye/Muğla</div>
         <div>İletişim: ${contact}</div>
         <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: ${taxId}</div>
       </div>
+      <div style="margin-top:6px;font-size:8.5px;color:#555;line-height:1.7;display:inline-block;text-align:left;">
+        <table style="border-collapse:collapse;">
+          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif No:</td><td>${escapeHtml(teklifNo)}</td></tr>
+          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif Tarihi:</td><td>${teklifTarihi}</td></tr>
+          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Geçerlilik Tarihi:</td><td>${gecerlilikTarihi}</td></tr>
+        </table>
+      </div>
     </div>
 
-    <!-- Right: Teklif info -->
-    <div style="flex-shrink:0;width:180px;font-size:8.5px;color:#555;line-height:1.7;text-align:left;padding-top:6px;padding-left:16px;">
-      <table style="border-collapse:collapse;">
-        <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif No:</td><td>${escapeHtml(teklifNo)}</td></tr>
-        <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif Tarihi:</td><td>${teklifTarihi}</td></tr>
-        <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Geçerlilik Tarihi:</td><td>${gecerlilikTarihi}</td></tr>
-      </table>
+    <!-- Right: Logo -->
+    <div style="flex-shrink:0;width:95px;display:flex;justify-content:flex-end;align-items:center;">
+      <img src="${rightLogoImageSrc}" style="width:90px;height:auto;max-height:70px;object-fit:contain;" />
     </div>
   </div>
 
