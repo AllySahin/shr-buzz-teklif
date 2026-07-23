@@ -84,25 +84,18 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
 <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#222;width:700px;padding:40px 40px 30px 40px;box-sizing:border-box;">
   
   <!-- Header -->
-  <div style="display:flex;align-items:center;margin-bottom:4px;gap:10px;">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:10px;">
     <!-- Left: Logo -->
     <div style="flex-shrink:0;width:95px;display:flex;justify-content:flex-start;align-items:center;">
       <img src="${leftLogoImageSrc}" style="width:90px;height:auto;max-height:70px;object-fit:contain;" />
     </div>
 
-    <!-- Center: Address and quote info -->
+    <!-- Center: Address -->
     <div style="flex:1;min-width:0;text-align:center;padding:0 8px;">
-      <div style="font-size:8.5px;color:#555;line-height:1.65;display:inline-block;text-align:left;">
+      <div style="font-size:8.5px;color:#555;line-height:1.65;text-align:left;">
         <div>Adres: Esenköy Mah. Bademli Mevkii No:221 Fethiye/Muğla</div>
         <div>İletişim: ${contact}</div>
         <div>Vergi Dairesi: Fethiye &nbsp;&nbsp; Vergi No: ${taxId}</div>
-      </div>
-      <div style="margin-top:6px;font-size:8.5px;color:#555;line-height:1.7;display:inline-block;text-align:left;">
-        <table style="border-collapse:collapse;">
-          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif No:</td><td>${escapeHtml(teklifNo)}</td></tr>
-          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Teklif Tarihi:</td><td>${teklifTarihi}</td></tr>
-          <tr><td style="font-weight:bold;padding-right:8px;white-space:nowrap;">Geçerlilik Tarihi:</td><td>${gecerlilikTarihi}</td></tr>
-        </table>
       </div>
     </div>
 
@@ -112,14 +105,21 @@ export async function generatePdf({ firmaAdi, teklifNo, products, bilgilendirmeS
     </div>
   </div>
 
-  <!-- Divider -->
-  <hr style="border:none;border-top:2px solid #003366;margin:10px 0 16px 0;" />
-
-  <!-- Greeting -->
-  <div style="font-size:10px;color:#333;margin-bottom:4px;line-height:1.6;">
-    Sayın, ${escapeHtml(firmaAdi)} şirket yetkilisi,<br/>
-    Firmamızdan istemiş olduğunuz ürün/hizmete ilişkin teklif aşağıda bilginize sunulmuştur.
+  <!-- Greeting / Metadata row -->
+  <div style="display:flex;gap:12px;margin-bottom:16px;align-items:flex-start;justify-content:space-between;">
+    <div style="flex:3;font-size:10px;color:#333;line-height:1.6;min-width:220px;">
+      Sayın ${escapeHtml(firmaAdi)} şirket yetkilisi,<br/>
+      Firmamızdan istemiş olduğunuz ürün/hizmete ilişkin teklif aşağıda bilginize sunulmuştur.
+    </div>
+    <div style="flex:1;min-width:140px;font-size:8.5px;color:#555;line-height:1.7;text-align:right;">
+      <div>Teklif No: ${escapeHtml(teklifNo)}</div>
+      <div>Teklif Tarihi: ${teklifTarihi}</div>
+      <div>Geçerlilik Tarihi: ${gecerlilikTarihi}</div>
+    </div>
   </div>
+
+  <!-- Divider -->
+  <hr style="border:none;border-top:2px solid #003366;margin:0 0 16px 0;" />
 
   <!-- Table -->
   <table style="width:100%;border-collapse:collapse;margin-top:12px;margin-bottom:20px;">
